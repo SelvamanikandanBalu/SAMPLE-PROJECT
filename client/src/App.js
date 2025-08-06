@@ -134,6 +134,8 @@ function App() {
               !gameStarted ? (isNextChooser ? 'Your Turn to choose a movie!' : 'Waiting for chooser...') :
               (isChooser ? 'You selected the movie. Waiting for others...' : 'Guess the movie!')}
           </div>
+          {clue && <div className="clue">Clue: {clue}</div>}
+          {strikes.length > 0 && <div className="strikes">Strikes: {strikes.join(', ')}</div>}
         </div>
 
         <div className="input-section">
