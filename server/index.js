@@ -1,8 +1,6 @@
 const express = require('express');
 const Sentry = require('@sentry/node');
-const { requestHandler, tracingHandler, errorHandler } = require('@sentry/node/handlers'); // <-- Import handlers explicitly
-
-require('@sentry/tracing'); // just require it
+require('@sentry/tracing');
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
@@ -11,8 +9,8 @@ Sentry.init({
 
 // This must come before any other middleware
 const app = express();
-app.use(requestHandler());
-app.use(tracingHandler());
+app.use(Sentry.requestHandler());
+app.use(Sentry.tracingHandler());
 
 const http = require('http');
 const cors = require('cors');
@@ -221,12 +219,7 @@ io.on('connection', (socket) => {
   });
 });
 
-app.use(errorHandler());
-
-app.use((err, req, res, next) => {
-  const eventId = res.sentry;
-  res.status(500).send(`Something went wrong. Reference ID: ${eventId}`);
-});
+app.use(Sentry.errorHandler());
 
 app.get('/', (req, res) => {
   res.send('Kollywood Game Backend is running.');
