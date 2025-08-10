@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import socket from './socket';
 import './App.css';
 
+console.log("✅ App component mounted");
+
 function App() {
   const [players, setPlayers] = useState([]);
   const [roomId, setRoomId] = useState('');
@@ -120,6 +122,7 @@ function App() {
     <div>
       <header>Kollywood Guessing Game</header>
       <div className="container">
+        <h1 style={{ fontSize: "40px", color: "red" }}>TEST TEXT</h1>
         <div className="scoreboard">
           <h3>Scoreboard</h3>
           <ul>
