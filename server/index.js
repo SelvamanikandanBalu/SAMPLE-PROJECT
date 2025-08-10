@@ -1,19 +1,21 @@
-const Sentry = require("@sentry/node");
 const express = require('express');
+const Sentry = require('@sentry/node');
+const Tracing = require('@sentry/tracing');
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN, // Make sure this is set in Render’s environment variables
+  tracesSampleRate: 1.0,
+});
+
+// This must come before any other middleware
+const app = express();
+app.use(Sentry.Handlers.requestHandler());
+app.use(Sentry.Handlers.tracingHandler());
+
 const http = require('http');
 const cors = require('cors');
 const { Server } = require('socket.io');
-
-const app = express();
 const server = http.createServer(app);
-
-Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-  tracesSampleRate: 1.0
-});
-
-app.use(Sentry.Handlers.requestHandler()); // logs HTTP requests
-app.use(Sentry.Handlers.errorHandler());   // logs errors
 
 app.use(cors({ origin: "*" }));
 
@@ -222,13 +224,7 @@ app.get('/', (req, res) => {
   res.send('Kollywood Game Backend is running.');
 });
 
-app.get('/health', (req, res) => {
-  res.json({
-    ok: true,
-    uptime: process.uptime(),
-    timestamp: new Date()
-  });
-});
+app.use(Sentry.Handlers.errorHandler());
 
 server.listen(5000, () => {
   console.log('Server running on port 5000');
