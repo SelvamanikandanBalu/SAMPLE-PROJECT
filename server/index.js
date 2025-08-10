@@ -1,16 +1,21 @@
 const express = require('express');
 const Sentry = require('@sentry/node');
-const Tracing = require('@sentry/tracing');
+require('@sentry/tracing'); // just require it to enable tracing
 
+// Initialize Sentry before everything else
 Sentry.init({
-  dsn: process.env.SENTRY_DSN, // Make sure this is set in Render’s environment variables
-  tracesSampleRate: 1.0,
+  dsn: process.env.SENTRY_DSN, // Your DSN from Sentry
+  tracesSampleRate: 1.0,       // Adjust in production as needed
 });
 
 // This must come before any other middleware
 const app = express();
+// The request handler must be the first middleware on the app
 app.use(Sentry.Handlers.requestHandler());
+
+// Tracing handler (optional, but recommended for performance monitoring)
 app.use(Sentry.Handlers.tracingHandler());
+
 
 const http = require('http');
 const cors = require('cors');
@@ -219,12 +224,19 @@ io.on('connection', (socket) => {
   });
 });
 
+app.use(Sentry.Handlers.errorHandler());
+
+// Optional: Custom error handler to respond with a user-friendly message
+app.use((err, req, res, next) => {
+  // The error id helps correlate logs in Sentry
+  const eventId = res.sentry;
+  res.statusCode = 500;
+  res.end(`An error occurred. Reference ID: ${eventId}`);
+});
 
 app.get('/', (req, res) => {
   res.send('Kollywood Game Backend is running.');
 });
-
-app.use(Sentry.Handlers.errorHandler());
 
 server.listen(5000, () => {
   console.log('Server running on port 5000');
