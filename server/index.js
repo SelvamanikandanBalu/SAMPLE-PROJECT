@@ -1,21 +1,18 @@
 const express = require('express');
 const Sentry = require('@sentry/node');
-require('@sentry/tracing'); // just require it to enable tracing
+const { requestHandler, tracingHandler, errorHandler } = require('@sentry/node/handlers'); // <-- Import handlers explicitly
 
-// Initialize Sentry before everything else
+require('@sentry/tracing'); // just require it
+
 Sentry.init({
-  dsn: process.env.SENTRY_DSN, // Your DSN from Sentry
-  tracesSampleRate: 1.0,       // Adjust in production as needed
+  dsn: process.env.SENTRY_DSN,
+  tracesSampleRate: 1.0,
 });
 
 // This must come before any other middleware
 const app = express();
-// The request handler must be the first middleware on the app
-app.use(Sentry.Handlers.requestHandler());
-
-// Tracing handler (optional, but recommended for performance monitoring)
-app.use(Sentry.Handlers.tracingHandler());
-
+app.use(requestHandler());
+app.use(tracingHandler());
 
 const http = require('http');
 const cors = require('cors');
@@ -224,14 +221,11 @@ io.on('connection', (socket) => {
   });
 });
 
-app.use(Sentry.Handlers.errorHandler());
+app.use(errorHandler());
 
-// Optional: Custom error handler to respond with a user-friendly message
 app.use((err, req, res, next) => {
-  // The error id helps correlate logs in Sentry
   const eventId = res.sentry;
-  res.statusCode = 500;
-  res.end(`An error occurred. Reference ID: ${eventId}`);
+  res.status(500).send(`Something went wrong. Reference ID: ${eventId}`);
 });
 
 app.get('/', (req, res) => {
