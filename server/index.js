@@ -7,10 +7,11 @@ Sentry.init({
   tracesSampleRate: 1.0,
 });
 
-// This must come before any other middleware
 const app = express();
-app.use(Sentry.requestHandler());
-app.use(Sentry.tracingHandler());
+
+// v7 syntax
+app.use(Sentry.Handlers.requestHandler());
+app.use(Sentry.Handlers.tracingHandler());
 
 const http = require('http');
 const cors = require('cors');
@@ -219,7 +220,8 @@ io.on('connection', (socket) => {
   });
 });
 
-app.use(Sentry.errorHandler());
+// v7 error handler
+app.use(Sentry.Handlers.errorHandler());
 
 app.get('/', (req, res) => {
   res.send('Kollywood Game Backend is running.');
