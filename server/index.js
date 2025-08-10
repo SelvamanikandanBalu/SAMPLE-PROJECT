@@ -1,3 +1,4 @@
+const Sentry = require("@sentry/node");
 const express = require('express');
 const http = require('http');
 const cors = require('cors');
@@ -5,6 +6,14 @@ const { Server } = require('socket.io');
 
 const app = express();
 const server = http.createServer(app);
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  tracesSampleRate: 1.0
+});
+
+app.use(Sentry.Handlers.requestHandler()); // logs HTTP requests
+app.use(Sentry.Handlers.errorHandler());   // logs errors
 
 app.use(cors({ origin: "*" }));
 
@@ -208,8 +217,17 @@ io.on('connection', (socket) => {
   });
 });
 
+
 app.get('/', (req, res) => {
   res.send('Kollywood Game Backend is running.');
+});
+
+app.get('/health', (req, res) => {
+  res.json({
+    ok: true,
+    uptime: process.uptime(),
+    timestamp: new Date()
+  });
 });
 
 server.listen(5000, () => {
