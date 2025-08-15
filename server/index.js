@@ -55,6 +55,7 @@ function clearGuessTimer(roomId) {
 }
 
 function rotateChooser(roomId) {
+  console.log(`🔄 Rotating chooser in room: ${roomId}`);
   const roomPlayers = rooms[roomId];
   const state = roomStates[roomId];
   if (!roomPlayers || !state) return;
@@ -73,6 +74,7 @@ function rotateChooser(roomId) {
 }
 
 function handleWrongGuess(roomId) {
+  console.log(`❌ Wrong guess in room: ${roomId} | Current strikes: ${roomStates[roomId].strikes.length}`);
   const gameState = roomStates[roomId];
   const strikes = gameState.strikes;
   if (strikes.length < KOLLYWOOD.length) {
@@ -84,6 +86,7 @@ function handleWrongGuess(roomId) {
     }
 
     if (strikes.length === 9) {
+      console.log(`💀 LOSS — All strikes used. Movie was "${gameState.movie}" in Room ${roomId}`);
       io.to(roomId).emit('gameResult', {
         result: 'lose',
         correctMovie: gameState.movie,
@@ -117,6 +120,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('selectMovie', ({ roomId, movie }) => {
+    console.log(`🎬 ${socket.id} selected movie: ${movie} in room: ${roomId}`);
     const roomPlayers = rooms[roomId];
     if (!roomPlayers) return;
 
@@ -157,6 +161,8 @@ io.on('connection', (socket) => {
         const scoreGain = Math.max(50, 100 - (gameState.strikes.length * 10));
         roomScores[roomId][playerId] += scoreGain;
 
+        console.log(`🏆 WIN — Player ${playerId} guessed full movie "${gameState.movie}" in Room ${roomId}`);
+
         io.to(roomId).emit('gameResult', {
           result: 'win',
           winnerId: playerId,
@@ -180,6 +186,7 @@ io.on('connection', (socket) => {
         io.to(roomId).emit('letterRevealed', { maskedMovie: updatedMasked, scoreboard: roomScores[roomId] });
 
         if (!updatedMasked.includes('_')) {
+          console.log(`🏆 WIN — Player ${playerId} completed movie "${gameState.movie}" in Room ${roomId} by guessing letters`);
           io.to(roomId).emit('gameResult', {
             result: 'win',
             winnerId: playerId,

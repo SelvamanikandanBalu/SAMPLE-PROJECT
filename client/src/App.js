@@ -116,7 +116,6 @@ function App() {
     <div>
       <header>Kollywood Guessing Game</header>
       <div className="container">
-        <h1 style={{ fontSize: "40px", color: "red" }}>TEST TEXT</h1>
         <div className="scoreboard">
           <h3>Scoreboard</h3>
           <ul>
