@@ -1,18 +1,5 @@
 const express = require('express');
-const Sentry = require('@sentry/node');
-require('@sentry/tracing');
-
-Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-  tracesSampleRate: 1.0,
-});
-
 const app = express();
-
-// v7 syntax
-app.use(Sentry.Handlers.requestHandler());
-app.use(Sentry.Handlers.tracingHandler());
-
 const http = require('http');
 const cors = require('cors');
 const { Server } = require('socket.io');
@@ -219,9 +206,6 @@ io.on('connection', (socket) => {
     }
   });
 });
-
-// v7 error handler
-app.use(Sentry.Handlers.errorHandler());
 
 app.get('/', (req, res) => {
   res.send('Kollywood Game Backend is running.');
