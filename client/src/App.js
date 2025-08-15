@@ -1,14 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react'; 
 import socket from './socket';
 import './App.css';
-
-console.log("✅ App component mounted");
 
 function App() {
   const [players, setPlayers] = useState([]);
   const [roomId, setRoomId] = useState('');
   const [playerName, setPlayerName] = useState('');
   const [joined, setJoined] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(false);
   const [chooserId, setChooserId] = useState('');
   const [isNextChooser, setIsNextChooser] = useState(false);
   const [maskedMovie, setMaskedMovie] = useState('');
@@ -19,9 +18,20 @@ function App() {
   const [movieToChoose, setMovieToChoose] = useState('');
   const [scoreboard, setScoreboard] = useState({});
   const [timeLeft, setTimeLeft] = useState(30);
+  const [gameMessage, setGameMessage] = useState('');
+  const [notifications, setNotifications] = useState([]);
 
+  // Handle socket events
   useEffect(() => {
     socket.on('roomUpdate', setPlayers);
+
+    socket.on('playerJoined', ({ playerName }) => {
+      setNotifications(prev => [...prev, `${playerName} joined the game!`]);
+    });
+
+    socket.on('playerLeft', ({ playerName }) => {
+      setNotifications(prev => [...prev, `${playerName} left the game!`]);
+    });
 
     socket.on('movieSelected', ({ chooserId, maskedMovie, strikes, clue }) => {
       setChooserId(chooserId);
@@ -30,6 +40,7 @@ function App() {
       setClue(clue);
       setGameStarted(true);
       setTimeLeft(30);
+      setGameMessage('');
     });
 
     socket.on('letterRevealed', ({ maskedMovie, scoreboard }) => {
@@ -46,11 +57,10 @@ function App() {
     });
 
     socket.on('gameResult', ({ result, winnerId, correctMovie, scoreboard }) => {
-      alert(result === 'win'
-        ? `🎉 Player ${players.find(p => p.id === winnerId)?.name || 'Someone'} guessed it! Movie: ${correctMovie}`
-        : `😢 Game Over! The movie was: ${correctMovie}`);
-
       setScoreboard(scoreboard);
+      setGameMessage(result === 'win'
+        ? `🎉 ${players.find(p => p.id === winnerId)?.name || 'Someone'} guessed it! Movie: ${correctMovie}`
+        : `😢 Game Over! The movie was: ${correctMovie}`);
       setGameStarted(false);
       setMaskedMovie('');
       setStrikes([]);
@@ -65,29 +75,19 @@ function App() {
     });
 
     socket.on('sessionOver', ({ message }) => {
-      alert(message);
-      window.location.reload();
+      setGameMessage(message);
     });
 
     let timer;
     if (gameStarted && timeLeft > 0) {
-      timer = setTimeout(() => {
-        setTimeLeft(prev => prev - 1);
-      }, 1000);
+      timer = setTimeout(() => setTimeLeft(prev => prev - 1), 1000);
     }
 
     return () => {
       clearTimeout(timer);
-      socket.off('roomUpdate');
-      socket.off('movieSelected');
-      socket.off('letterRevealed');
-      socket.off('strikeUpdate');
-      socket.off('clueReveal');
-      socket.off('gameResult');
-      socket.off('nextChooser');
-      socket.off('sessionOver');
+      socket.off();
     };
-  }, [players, timeLeft, gameStarted]);
+  }, [players, gameStarted, timeLeft]);
 
   const handleJoin = () => {
     if (roomId && playerName) {
@@ -112,55 +112,77 @@ function App() {
 
   const isChooser = chooserId === socket.id;
 
-  return (
-    <div>
-      <header>Kollywood Guessing Game</header>
-      <div className="container">
-        <div className="scoreboard">
-          <h3>Scoreboard</h3>
-          <ul>
-            {players.map(player => (
-              <li key={player.id}>
-                {player.name}: {scoreboard[player.id] || 0} pts
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="game-info">
-          <h3>Room: {roomId}</h3>
-          <div className="timer">Time Left: {timeLeft} sec</div>
-          <div className="masked-movie">{maskedMovie || '_ _ _ _ _'}</div>
-          <div className="status-message">
-            {!joined ? 'Please Join a Room' :
-              !gameStarted ? (isNextChooser ? 'Your Turn to choose a movie!' : 'Waiting for chooser...') :
-              (isChooser ? 'You selected the movie. Waiting for others...' : 'Guess the movie!')}
+  // Intro screen
+  if (!joined) {
+    return (
+      <div className="intro-screen">
+        <h1>Kollywood Guessing Game</h1>
+        {!showInstructions ? (
+          <>
+            <button onClick={() => setShowInstructions(true)}>View Instructions</button>
+            <button onClick={handleJoin}>Join Room</button>
+          </>
+        ) : (
+          <div className="instructions">
+            <h2>Instructions</h2>
+            <p>1. Join a room with your name.</p>
+            <p>2. Wait for your turn to choose a movie or guess.</p>
+            <p>3. Guess letters or full movie names to win points.</p>
+            <p>4. Strikes appear when guesses are wrong.</p>
+            <button onClick={() => setShowInstructions(false)}>Back</button>
           </div>
-          {clue && <div className="clue">Clue: {clue}</div>}
-          {strikes.length > 0 && <div className="strikes">Strikes: {strikes.join(', ')}</div>}
-        </div>
+        )}
+      </div>
+    );
+  }
 
-        <div className="input-section">
-          {!joined ? (
-            <>
-              <input placeholder="Room ID" value={roomId} onChange={e => setRoomId(e.target.value)} />
-              <input placeholder="Your Name" value={playerName} onChange={e => setPlayerName(e.target.value)} />
-              <button onClick={handleJoin}>Join</button>
-            </>
-          ) : !gameStarted ? (
-            isNextChooser && (
-              <>
-                <input placeholder="Type Movie Name" value={movieToChoose} onChange={e => setMovieToChoose(e.target.value)} />
-                <button onClick={handleSelectMovie}>Select Movie</button>
-              </>
-            )
-          ) : !isChooser ? (
-            <>
-              <input placeholder="Guess Letter or Movie" value={guessInput} onChange={e => setGuessInput(e.target.value)} />
-              <button onClick={handleGuess}>Submit Guess</button>
-            </>
-          ) : null}
+  return (
+    <div className="container">
+      <header>Kollywood Guessing Game</header>
+
+      <div className="scoreboard">
+        <h3>Scoreboard</h3>
+        <ul>
+          {players.map(player => (
+            <li key={player.id}>
+              {player.name}: {scoreboard[player.id] || 0} pts
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="game-info">
+        <h3>Room: {roomId}</h3>
+        <div className="timer">Time Left: {timeLeft} sec</div>
+        <div className="masked-movie">{maskedMovie || '_ _ _ _ _'}</div>
+        <div className="status-message">
+          {!gameStarted ? (isNextChooser ? 'Your Turn to choose a movie!' : 'Waiting for chooser...') :
+            (isChooser ? 'You selected the movie. Waiting for others...' : 'Guess the movie!')}
         </div>
+        {clue && <div className="clue">Clue: {clue}</div>}
+        <div className="strikes">
+          {strikes.map((s, i) => <span key={i} className="strike">{s}</span>)}
+        </div>
+        {gameMessage && <div className="game-message">{gameMessage}</div>}
+        <div className="notifications">
+          {notifications.map((note, i) => <div key={i} className="notification">{note}</div>)}
+        </div>
+      </div>
+
+      <div className="input-section">
+        {!gameStarted && isNextChooser && (
+          <>
+            <input placeholder="Type Movie Name" value={movieToChoose} onChange={e => setMovieToChoose(e.target.value)} />
+            <button onClick={handleSelectMovie}>Select Movie</button>
+          </>
+        )}
+
+        {gameStarted && !isChooser && (
+          <>
+            <input placeholder="Guess Letter or Movie" value={guessInput} onChange={e => setGuessInput(e.target.value)} />
+            <button onClick={handleGuess}>Submit Guess</button>
+          </>
+        )}
       </div>
     </div>
   );
