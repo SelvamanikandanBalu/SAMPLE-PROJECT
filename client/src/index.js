@@ -4,15 +4,11 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import * as Sentry from "@sentry/react";
-import { BrowserTracing } from "@sentry/react"; // ✅ from @sentry/react, not @sentry/tracing
+import { BrowserTracing } from "@sentry/react"; // ✅ now valid
 
 Sentry.init({
   dsn: process.env.REACT_APP_SENTRY_DSN,
-  integrations: [
-    new BrowserTracing({
-      tracePropagationTargets: ["localhost", /^\//], // optional
-    }),
-  ],
+  integrations: [new BrowserTracing()],
   tracesSampleRate: 1.0,
 });
 
