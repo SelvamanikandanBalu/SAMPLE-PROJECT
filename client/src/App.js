@@ -90,6 +90,7 @@ function App() {
   }, [players, gameStarted, timeLeft]);
 
   const handleJoin = () => {
+    console.log("Joining room", roomId, playerName);
     if (roomId && playerName) {
       socket.emit('joinRoom', { roomId, playerName });
       setJoined(true);
@@ -118,11 +119,21 @@ function App() {
       <div className="intro-screen">
         <h1>Kollywood Guessing Game</h1>
         {!showInstructions ? (
-          <>
-            <button onClick={() => setShowInstructions(true)}>View Instructions</button>
+          <div className="join-container">
+            <input
+            placeholder="Enter Room ID"
+            value={roomId}
+            onChange={e => setRoomId(e.target.value)}
+            />
+            <input
+            placeholder="Enter Your Name"
+            value={playerName}
+            onChange={e => setPlayerName(e.target.value)}
+            />
             <button onClick={handleJoin}>Join Room</button>
-          </>
-        ) : (
+            <button onClick={() => setShowInstructions(true)}>View Instructions</button>
+        </div>
+         ) : (
           <div className="instructions">
             <h2>Instructions</h2>
             <p>1. Join a room with your name.</p>
