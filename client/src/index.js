@@ -4,15 +4,19 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import * as Sentry from "@sentry/react";
-import { BrowserTracing } from "@sentry/tracing";
+import { BrowserTracing } from "@sentry/react"; // ✅ from @sentry/react, not @sentry/tracing
 
 Sentry.init({
   dsn: process.env.REACT_APP_SENTRY_DSN,
-  integrations: [new BrowserTracing()],
+  integrations: [
+    new BrowserTracing({
+      tracePropagationTargets: ["localhost", /^\//], // optional
+    }),
+  ],
   tracesSampleRate: 1.0,
 });
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <App />
