@@ -21,12 +21,6 @@ function App() {
   const [timeLeft, setTimeLeft] = useState(30);
 
   useEffect(() => {
-    // Test Sentry integration
-    throw new Error("Sentry test error - Frontend");
-  }, []);
-
-
-  useEffect(() => {
     socket.on('roomUpdate', setPlayers);
 
     socket.on('movieSelected', ({ chooserId, maskedMovie, strikes, clue }) => {
