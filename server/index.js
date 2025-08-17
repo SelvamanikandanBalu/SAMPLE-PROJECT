@@ -14,7 +14,7 @@ const io = new Server(server, {
   }
 });
 
-const MOVIES = ["Mersal", "Vikram", "Jailer", "Ponniyin Selvan", "Ghilli", "Master"];
+const MOVIES = require('./movies.json');
 const KOLLYWOOD = ['K','O','L','L','Y','W','O','O','D'];
 let rooms = {};
 let roomStates = {};

@@ -2,16 +2,7 @@ import React, { useEffect, useState } from 'react';
 import socket from './socket';
 import './App.css';
 import Select from 'react-select';
-
-// Movie options (we’ll add many later)
-const MOVIE_OPTIONS = [
-  { value: "Mersal", label: "Mersal" },
-  { value: "Vikram", label: "Vikram" },
-  { value: "Jailer", label: "Jailer" },
-  { value: "Ponniyin Selvan", label: "Ponniyin Selvan" },
-  { value: "Ghilli", label: "Ghilli" },
-  { value: "Master", label: "Master" },
-];
+import movies from './movies.json';
 
 function App() {
   const [players, setPlayers] = useState([]);
@@ -195,35 +186,30 @@ function App() {
         {!gameStarted && isNextChooser && (
           <>
             <Select
-            options={MOVIE_OPTIONS}
-            placeholder="Search and select a movie..."
-            onChange={selected => setMovieToChoose(selected.value)}
+            options={movies.map(m => ({ label: m, value: m }))}
+            onChange={(selected) => setMovieToChoose(selected.value)}
+            placeholder="Search & Select Movie..."
+            isSearchable
             styles={{
-             control: (base) => ({
-               ...base,
-               background: "transparent",
-               borderColor: "rgba(255,255,255,0.2)",
-               color: "#fff",
-               borderRadius: "10px",
-               padding: "4px",
-             }),
-             menu: (base) => ({
+              control: (base) => ({
               ...base,
-              background: "#121827",
-              color: "#fff"
-             }),
-             option: (base, state) => ({
+              backgroundColor: 'transparent',
+              border: '1px solid rgba(255,255,255,0.2)',
+              color: '#fff',
+              }),
+              singleValue: (base) => ({ ...base, color: '#fff' }),
+              menu: (base) => ({ ...base, backgroundColor: '#121827' }),
+              option: (base, { isFocused }) => ({
               ...base,
-              background: state.isFocused ? "#ff7b00" : "transparent",
-              color: state.isFocused ? "#031218" : "#fff",
-              cursor: "pointer",
-             })
-          }}
+              backgroundColor: isFocused ? '#ff7b00' : 'transparent',
+              color: isFocused ? '#031218' : '#fff',
+              }),
+            }}
         />
         <button onClick={handleSelectMovie}>Select Movie</button>
         </>
         )}
-        
+
         {gameStarted && !isChooser && (
           <>
             <input placeholder="Guess Letter or Movie" value={guessInput} onChange={e => setGuessInput(e.target.value)} />
