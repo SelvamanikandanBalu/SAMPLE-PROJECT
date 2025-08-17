@@ -112,6 +112,8 @@ io.on('connection', (socket) => {
 
     io.to(roomId).emit('roomUpdate', rooms[roomId]);
 
+    io.to(roomId).emit('playerJoined', { playerName });
+
     if (!roomStates[roomId]) {
       roomStates[roomId] = { chooserIndex: 0 };
       io.to(roomId).emit('nextChooser', { chooserId: socket.id });
@@ -208,8 +210,14 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log(`❌ Disconnected: ${socket.id}`);
     for (const roomId in rooms) {
+      const leavingPlayer = rooms[roomId].find(p => p.id === socket.id);
       rooms[roomId] = rooms[roomId].filter(player => player.id !== socket.id);
       io.to(roomId).emit('roomUpdate', rooms[roomId]);
+
+      if (leavingPlayer) {
+      // NEW: Announce player left
+      io.to(roomId).emit('playerLeft', { playerName: leavingPlayer.name });
+      }
     }
   });
 });
