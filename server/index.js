@@ -116,6 +116,7 @@ io.on('connection', (socket) => {
 
     if (!roomStates[roomId]) {
       roomStates[roomId] = { chooserIndex: 0 };
+      const firstChooser = socket.id;
       console.log(`🎯 Room ${roomId} — Initial chooser set: ${firstChooser} (${playerName})`);
       io.to(roomId).emit('nextChooser', { chooserId: socket.id });
     }
