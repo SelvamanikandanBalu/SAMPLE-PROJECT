@@ -3,6 +3,9 @@ import socket from './socket';
 import './App.css';
 import Select from 'react-select';
 import movies from './movies.json';
+import { motion } from 'framer-motion';
+import Confetti from 'react-confetti';
+import toast, { Toaster } from 'react-hot-toast';
 
 function App() {
   const [players, setPlayers] = useState([]);
@@ -29,10 +32,12 @@ function App() {
 
     socket.on('playerJoined', ({ playerName }) => {
       setNotifications(prev => [...prev, `${playerName} joined the game!`]);
+      toast.success(`${playerName} joined the game!`);
     });
 
     socket.on('playerLeft', ({ playerName }) => {
       setNotifications(prev => [...prev, `${playerName} left the game!`]);
+      toast.error(`${playerName} left the game!`);
     });
 
     socket.on('movieSelected', ({ chooserId, maskedMovie, strikes, clue }) => {
@@ -174,9 +179,23 @@ function App() {
         </div>
         {clue && <div className="clue">Clue: {clue}</div>}
         <div className="strikes">
-          {strikes.map((s, i) => <span key={i} className="strike">{s}</span>)}
+          {strikes.map((s, i) => (
+          <motion.span
+           key={i}
+           className="strike"
+           initial={{ scale: 0, rotate: -180 }}
+           animate={{ scale: 1, rotate: 0 }}
+           transition={{ type: "spring", stiffness: 200 }}
+          >
+          {s}
+          </motion.span>
+          ))}
         </div>
-        {gameMessage && <div className="game-message">{gameMessage}</div>}
+        {gameMessage && <div className="game-message">
+        {gameMessage}
+        {/* Show Confetti if it's a win */}
+        {gameMessage.includes('🎉') && <Confetti />}
+        </div>}
         <div className="notifications">
           {notifications.map((note, i) => <div key={i} className="notification">{note}</div>)}
         </div>
@@ -217,6 +236,7 @@ function App() {
           </>
         )}
       </div>
+      <Toaster position="top-right" />
     </div>
   );
 }

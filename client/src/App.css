@@ -249,3 +249,19 @@ header h1{
   .input-section{order:3;}
   .scoreboard{order:2;}
 }
+
+:root {
+  --toast-bg: #121827;
+  --toast-text: #e6eef6;
+}
+
+[data-sonner-toaster], .react-hot-toast {
+  font-family: Inter, "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial;
+}
+
+.react-hot-toast {
+  background: var(--toast-bg) !important;
+  color: var(--toast-text) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+}
