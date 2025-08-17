@@ -55,7 +55,6 @@ function clearGuessTimer(roomId) {
 }
 
 function rotateChooser(roomId) {
-  console.log(`🔄 Rotating chooser in room: ${roomId}`);
   const roomPlayers = rooms[roomId];
   const state = roomStates[roomId];
   if (!roomPlayers || !state) return;
@@ -70,6 +69,7 @@ function rotateChooser(roomId) {
 
   state.chooserIndex = (state.chooserIndex + 1) % roomPlayers.length;
   const nextChooserId = roomPlayers[state.chooserIndex].id;
+  console.log(`🔄 Room ${roomId} — Next chooser: ${nextChooserId}`);
   io.to(roomId).emit('nextChooser', { chooserId: nextChooserId });
 }
 
@@ -116,8 +116,8 @@ io.on('connection', (socket) => {
 
     if (!roomStates[roomId]) {
       roomStates[roomId] = { chooserIndex: 0 };
+      console.log(`🎯 Room ${roomId} — Initial chooser set: ${firstChooser} (${playerName})`);
       io.to(roomId).emit('nextChooser', { chooserId: socket.id });
-      console.log(`Initial Chooser Assigned: ${socket.id}`);
     }
   });
 
