@@ -1,6 +1,17 @@
 import React, { useEffect, useState } from 'react'; 
 import socket from './socket';
 import './App.css';
+import Select from 'react-select';
+
+// Movie options (we’ll add many later)
+const MOVIE_OPTIONS = [
+  { value: "Mersal", label: "Mersal" },
+  { value: "Vikram", label: "Vikram" },
+  { value: "Jailer", label: "Jailer" },
+  { value: "Ponniyin Selvan", label: "Ponniyin Selvan" },
+  { value: "Ghilli", label: "Ghilli" },
+  { value: "Master", label: "Master" },
+];
 
 function App() {
   const [players, setPlayers] = useState([]);
@@ -183,11 +194,36 @@ function App() {
       <div className="input-section">
         {!gameStarted && isNextChooser && (
           <>
-            <input placeholder="Type Movie Name" value={movieToChoose} onChange={e => setMovieToChoose(e.target.value)} />
-            <button onClick={handleSelectMovie}>Select Movie</button>
-          </>
+            <Select
+            options={MOVIE_OPTIONS}
+            placeholder="Search and select a movie..."
+            onChange={selected => setMovieToChoose(selected.value)}
+            styles={{
+             control: (base) => ({
+               ...base,
+               background: "transparent",
+               borderColor: "rgba(255,255,255,0.2)",
+               color: "#fff",
+               borderRadius: "10px",
+               padding: "4px",
+             }),
+             menu: (base) => ({
+              ...base,
+              background: "#121827",
+              color: "#fff"
+             }),
+             option: (base, state) => ({
+              ...base,
+              background: state.isFocused ? "#ff7b00" : "transparent",
+              color: state.isFocused ? "#031218" : "#fff",
+              cursor: "pointer",
+             })
+          }}
+        />
+        <button onClick={handleSelectMovie}>Select Movie</button>
+        </>
         )}
-
+        
         {gameStarted && !isChooser && (
           <>
             <input placeholder="Guess Letter or Movie" value={guessInput} onChange={e => setGuessInput(e.target.value)} />
