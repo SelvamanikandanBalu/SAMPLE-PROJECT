@@ -44,7 +44,7 @@ function App() {
 
     socket.on('playerJoined', ({ playerName }) => {
       toast.success(t => (
-      <div style={{ display: "flex", alignItems: "center" }}>
+      <div style={{ display: "flex", alignItems: "center" }} id='player-item'>
           <img src={getAvatar({playerName})} alt={playerName} className="avatar" />
           <span>{playerName} joined the game 🎉</span>
       </div>

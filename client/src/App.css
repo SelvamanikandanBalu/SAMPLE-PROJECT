@@ -429,16 +429,16 @@ header h1{
 #player-item {
   display: flex;
   align-items: center;
-  gap: 6px; /* tighter spacing */
+  gap: 4px; /* very tight */
 }
 
-#player-item .img.avatar {
-  width: 20px;        /* smaller circle */
-  height: 20px;
+#player-item .avatar {
+  width: 14px;        /* very small size */
+  height: 14px;
   border-radius: 50%;
   background: #222;
-  border: 1.5px solid var(--accent); /* thinner border */
-  font-size: 11px;    /* fits scoreboard text */
+  border: 1px solid var(--accent); /* thinner */
+  font-size: 8px;     /* tiny initial */
   font-weight: 600;
   display: flex;
   align-items: center;
