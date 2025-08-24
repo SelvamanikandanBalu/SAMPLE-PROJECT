@@ -26,6 +26,7 @@ function App() {
   const [gameMessage, setGameMessage] = useState('');
   const [notifications, setNotifications] = useState([]);
   const [roundSummary, setRoundSummary] = useState(null);
+  const [sessionOver, setSessionOver] = useState(null);
 
   // Handle socket events
   useEffect(() => {
@@ -93,7 +94,11 @@ function App() {
     });
 
     socket.on('sessionOver', ({ message }) => {
-      setGameMessage(message);
+      setSessionOver({
+      message,
+      scoreboard
+    });
+      setGameStarted(false);
     });
 
     let timer;
@@ -271,6 +276,28 @@ function App() {
       </div>
      </div>
      )}
+
+     {sessionOver && (
+     <div className="modal-overlay">
+       <div className="modal">
+         <h2>🏆 {sessionOver.message}</h2>
+         <h3>Final Leaderboard</h3>
+         <ul>
+            {players
+            .sort((a, b) => (scoreboard[b.id] || 0) - (scoreboard[a.id] || 0))
+            .map((player, i) => (
+            <li key={player.id}>
+              {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "🎮"}{" "}
+              {player.name}: {scoreboard[player.id] || 0} pts
+            </li>
+            ))}
+         </ul>
+      <button onClick={() => window.location.reload()}>
+        Play Again
+      </button>
+      </div>
+    </div>
+    )}
     <Toaster position="top-right" />
     </div>
   );

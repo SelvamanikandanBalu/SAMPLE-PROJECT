@@ -378,6 +378,12 @@ header h1{
   color: var(--accent-2);
 }
 
+.modal h3 {
+  margin-top: 14px;
+  font-size: 18px;
+  color: var(--accent);
+}
+
 .modal p {
   margin: 6px 0;
   font-size: 15px;
