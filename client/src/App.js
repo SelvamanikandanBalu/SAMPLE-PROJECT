@@ -25,6 +25,7 @@ function App() {
   const [timeLeft, setTimeLeft] = useState(30);
   const [gameMessage, setGameMessage] = useState('');
   const [notifications, setNotifications] = useState([]);
+  const [roundSummary, setRoundSummary] = useState(null);
 
   // Handle socket events
   useEffect(() => {
@@ -63,15 +64,22 @@ function App() {
 
     socket.on('gameResult', ({ result, winnerId, correctMovie, scoreboard }) => {
       setScoreboard(scoreboard);
-      setGameMessage(result === 'win'
-        ? `🎉 ${players.find(p => p.id === winnerId)?.name || 'Someone'} guessed it! Movie: ${correctMovie}`
-        : `😢 Game Over! The movie was: ${correctMovie}`);
-      setGameStarted(false);
-      setMaskedMovie('');
-      setStrikes([]);
-      setClue(null);
-      setGuessInput('');
+
+      const winnerName = players.find(p => p.id === winnerId)?.name || "Someone";
+
+      setRoundSummary({
+      result,
+      winnerName,
+      correctMovie,
+      scoreboard
     });
+
+    setGameStarted(false);
+    setMaskedMovie('');
+    setStrikes([]);
+    setClue(null);
+    setGuessInput('');
+  });
 
     socket.on('nextChooser', ({ chooserId }) => {
       setChooserId(chooserId);
@@ -242,7 +250,28 @@ function App() {
           </>
         )}
       </div>
-      <Toaster position="top-right" />
+      {roundSummary && (
+      <div className="modal-overlay">
+        <div className="modal">
+         <h2>{roundSummary.result === 'win' ? '🎉 Round Won!' : '😢 Round Lost'}</h2>
+         {roundSummary.result === 'win' && (
+         <p><strong>{roundSummary.winnerName}</strong> guessed it right!</p>
+         )}
+         <p>Correct Movie: <strong>{roundSummary.correctMovie}</strong></p>
+      
+        <h3>Scoreboard</h3>
+        <ul>
+        {players.map(player => (
+          <li key={player.id}>
+            {player.name}: {roundSummary.scoreboard[player.id] || 0} pts
+          </li>
+        ))}
+        </ul>
+      <button onClick={() => setRoundSummary(null)}>Continue</button>
+      </div>
+     </div>
+     )}
+    <Toaster position="top-right" />
     </div>
   );
 }
