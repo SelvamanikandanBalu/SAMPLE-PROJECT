@@ -178,18 +178,10 @@ function App() {
             (isChooser ? 'You selected the movie. Waiting for others...' : 'Guess the movie!')}
         </div>
         {clue && <div className="clue">Clue: {clue}</div>}
-        <div className="strikes">
-          {strikes.map((s, i) => (
-          <motion.span
-           key={i}
-           className="strike"
-           initial={{ scale: 0, rotate: -180 }}
-           animate={{ scale: 1, rotate: 0 }}
-           transition={{ type: "spring", stiffness: 200 }}
-          >
-          {s}
-          </motion.span>
-          ))}
+        <div className={`strikes ${strikes.length > 0 ? "shake" : ""}`}>
+        {strikes.map((s, i) => (
+        <span key={i} className="strike">{s}</span>
+         ))}
         </div>
         {gameMessage && <div className="game-message">
         {gameMessage}
