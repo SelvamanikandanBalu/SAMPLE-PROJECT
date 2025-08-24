@@ -411,3 +411,17 @@ header h1{
   to { transform: translateY(0); opacity: 1; }
 }
 
+.mute-btn {
+  background: var(--glass);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+.mute-btn:hover {
+  background: var(--accent);
+  color: #031218;
+}

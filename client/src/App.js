@@ -27,6 +27,14 @@ function App() {
   const [notifications, setNotifications] = useState([]);
   const [roundSummary, setRoundSummary] = useState(null);
   const [sessionOver, setSessionOver] = useState(null);
+  const [muted, setMuted] = useState(false);
+
+  const playSound = (file) => {
+   if (muted) return;
+   const audio = new Audio(`/sounds/${file}`);
+   audio.volume = 0.7;
+   audio.play().catch(err => console.log("Sound play blocked:", err));
+  };
 
   // Handle socket events
   useEffect(() => {
@@ -53,10 +61,12 @@ function App() {
     socket.on('letterRevealed', ({ maskedMovie, scoreboard }) => {
       setMaskedMovie(maskedMovie);
       setScoreboard(scoreboard);
+      playSound("success.wav");
     });
 
     socket.on('strikeUpdate', ({ strikes }) => {
       setStrikes(strikes);
+      playSound("error.wav");
     });
 
     socket.on('clueReveal', ({ clue }) => {
@@ -65,6 +75,11 @@ function App() {
 
     socket.on('gameResult', ({ result, winnerId, correctMovie, scoreboard }) => {
       setScoreboard(scoreboard);
+      if (result === 'win') {
+        playSound("win.wav");
+      } else {
+        playSound("lose.wav");
+      }
 
       const winnerName = players.find(p => p.id === winnerId)?.name || "Someone";
 
@@ -136,11 +151,17 @@ function App() {
 
   const isChooser = chooserId === socket.id;
 
-  // Intro screen
   if (!joined) {
     return (
       <div className="intro-screen">
-        <h1>Kollywood Guessing Game</h1>
+        <h1>Kollywood Guessing Game
+          <button 
+          className="mute-btn" 
+          onClick={() => setMuted(!muted)}
+          >
+          {muted ? "🔇 Mute" : "🔊 Sound"}
+        </button>
+        </h1>
         {!showInstructions ? (
           <div className="join-container">
             <input
