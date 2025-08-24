@@ -178,10 +178,15 @@ function App() {
             (isChooser ? 'You selected the movie. Waiting for others...' : 'Guess the movie!')}
         </div>
         {clue && <div className="clue">Clue: {clue}</div>}
-        <div className={`strikes ${strikes.length > 0 ? "shake" : ""}`}>
-        {strikes.map((s, i) => (
-        <span key={i} className="strike">{s}</span>
-         ))}
+        <div className="strike-word">
+        {"KOLLYWOOD".split("").map((letter, i) => (
+        <span
+        key={i}
+        className={`strike-letter ${i < strikes.length ? "struck" : ""}`}
+        >
+        {letter}
+        </span>
+        ))}
         </div>
         {gameMessage && <div className="game-message">
         {gameMessage}

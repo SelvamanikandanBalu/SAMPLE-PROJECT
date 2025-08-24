@@ -279,3 +279,40 @@ header h1{
   75% { transform: translateX(-4px); }
   100% { transform: translateX(0); }
 }
+
+/* Strike word display */
+.strike-word {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  font-size: 32px;
+  font-weight: bold;
+  letter-spacing: 4px;
+  margin-top: 12px;
+  color: #fff;
+}
+
+/* Each letter */
+.strike-letter {
+  position: relative;
+  display: inline-block;
+}
+
+/* Strike-through effect */
+.strike-letter.struck::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -5%;
+  width: 110%;
+  height: 3px;
+  background: red;
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: strike-through 0.4s ease forwards;
+}
+
+@keyframes strike-through {
+  0%   { transform: scaleX(0); }
+  100% { transform: scaleX(1); }
+}
