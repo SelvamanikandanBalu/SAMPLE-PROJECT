@@ -316,3 +316,37 @@ header h1{
   0%   { transform: scaleX(0); }
   100% { transform: scaleX(1); }
 }
+
+.timer-bar {
+  position: relative;
+  background: rgba(255,255,255,0.1);
+  border-radius: 8px;
+  height: 20px;
+  width: 100%;
+  margin: 8px 0;
+  overflow: hidden;
+}
+.timer-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00d084, #ff5c7c);
+  transition: width 1s linear;
+}
+.timer-bar span {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: #fff;
+  font-weight: bold;
+}
+
+.chooser {
+  border: 2px solid var(--accent-2);
+  background: rgba(255,255,255,0.08);
+}
+.chooser-badge {
+  margin-left: 8px;
+  font-size: 16px;
+}
+

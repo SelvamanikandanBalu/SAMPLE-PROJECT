@@ -31,12 +31,10 @@ function App() {
     socket.on('roomUpdate', setPlayers);
 
     socket.on('playerJoined', ({ playerName }) => {
-      setNotifications(prev => [...prev, `${playerName} joined the game!`]);
       toast.success(`${playerName} joined the game!`);
     });
 
     socket.on('playerLeft', ({ playerName }) => {
-      setNotifications(prev => [...prev, `${playerName} left the game!`]);
       toast.error(`${playerName} left the game!`);
     });
 
@@ -79,6 +77,11 @@ function App() {
       setChooserId(chooserId);
       setIsNextChooser(chooserId === socket.id);
       setGameStarted(false);
+    });
+
+    socket.on('nextChooser', ({ chooserId }) => {
+      const chooser = players.find(p => p.id === chooserId);
+      toast(`🎬 It's ${chooser?.name || 'someone'}'s turn to choose!`, { icon: '🎬' });
     });
 
     socket.on('sessionOver', ({ message }) => {
@@ -162,16 +165,22 @@ function App() {
         <h3>Scoreboard</h3>
         <ul>
           {players.map(player => (
-            <li key={player.id}>
-              {player.name}: {scoreboard[player.id] || 0} pts
-            </li>
+          <li key={player.id} className={player.id === chooserId ? "chooser" : ""}>
+          {player.name}: {scoreboard[player.id] || 0} pts
+          {player.id === chooserId && <span className="chooser-badge">🎬</span>}
+          </li>
           ))}
         </ul>
       </div>
-
       <div className="game-info">
         <h3>Room: {roomId}</h3>
-        <div className="timer">Time Left: {timeLeft} sec</div>
+        <div className="timer-bar">
+        <div 
+        className="timer-fill" 
+        style={{ width: `${(timeLeft / 30) * 100}%` }}
+        ></div>
+        <span>{timeLeft}s</span>
+        </div>
         <div className="masked-movie">{maskedMovie || '_ _ _ _ _'}</div>
         <div className="status-message">
           {!gameStarted ? (isNextChooser ? 'Your Turn to choose a movie!' : 'Waiting for chooser...') :
