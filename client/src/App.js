@@ -43,11 +43,25 @@ function App() {
     socket.on('roomUpdate', setPlayers);
 
     socket.on('playerJoined', ({ playerName }) => {
-      toast.success(`${playerName} joined the game!`);
+      toast.success(t => (
+      <div style={{ display: "flex", alignItems: "center" }}>
+          <img src={getAvatar({playerName})} alt={playerName} className="avatar" />
+          <span>{playerName} joined the game 🎉</span>
+      </div>
+      ),
+    { duration: 3000 }
+    );
     });
 
     socket.on('playerLeft', ({ playerName }) => {
-      toast.error(`${playerName} left the game!`);
+      toast.error(t => (
+      <div style={{ display: "flex", alignItems: "center" }}>
+          <img src={getAvatar({playerName})} alt={playerName} className="avatar" />
+          <span>{playerName} joined the game 🎉</span>
+      </div>
+      ),
+    { duration: 3000 }
+    );
     });
 
     socket.on('movieSelected', ({ chooserId, maskedMovie, strikes, clue }) => {
@@ -240,10 +254,6 @@ function App() {
         {/* Show Confetti if it's a win */}
         {gameMessage.includes('🎉') && <Confetti />}
         </div>}
-        <div key={i} className="notification">
-          <img src={getAvatar(note.name)} alt={note.name} className="avatar" />
-          {note.message}
-        </div>
       </div>
 
       <div className="input-section">
