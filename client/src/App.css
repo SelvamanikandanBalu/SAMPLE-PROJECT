@@ -425,3 +425,17 @@ header h1{
   background: var(--accent);
   color: #031218;
 }
+
+#player-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#player-item .img.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #222;
+  border: 2px solid var(--accent);
+}

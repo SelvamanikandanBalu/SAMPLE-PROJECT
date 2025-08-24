@@ -28,6 +28,8 @@ function App() {
   const [roundSummary, setRoundSummary] = useState(null);
   const [sessionOver, setSessionOver] = useState(null);
   const [muted, setMuted] = useState(false);
+  const getAvatar = (name) => 
+  `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(name)}`;
 
   const playSound = (file) => {
    if (muted) return;
@@ -199,8 +201,10 @@ function App() {
         <h3>Scoreboard</h3>
         <ul>
           {players.map(player => (
-          <li key={player.id} className={player.id === chooserId ? "chooser" : ""}>
-          {player.name}: {scoreboard[player.id] || 0} pts
+          <li key={player.id} id="player-item" className={player.id === chooserId ? "chooser" : ""}>
+          <img src={getAvatar(player.name)} alt={player.name} className="avatar" />
+          <span>{player.name}</span>
+          <span>{scoreboard[player.id] || 0} pts</span>
           {player.id === chooserId && <span className="chooser-badge">🎬</span>}
           </li>
           ))}
@@ -236,8 +240,9 @@ function App() {
         {/* Show Confetti if it's a win */}
         {gameMessage.includes('🎉') && <Confetti />}
         </div>}
-        <div className="notifications">
-          {notifications.map((note, i) => <div key={i} className="notification">{note}</div>)}
+        <div key={i} className="notification">
+          <img src={getAvatar(note.name)} alt={note.name} className="avatar" />
+          {note.message}
         </div>
       </div>
 
